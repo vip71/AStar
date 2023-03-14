@@ -7,7 +7,7 @@ public int getHeuristicValue(Puzzle init, Puzzle goal) {
         return Integer.MAX_VALUE;
     int diff = 0;
     for (int i = 0; i < 16; i++)
-        if (init.field[i] != goal.field[i]){
+        if (init.fields[i] != goal.fields[i]){
             diff++;
         }
     return diff;
