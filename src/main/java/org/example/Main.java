@@ -7,7 +7,7 @@ import java.util.Stack;
 public class Main {
 public static Random random = new Random();
 
-public static Heuristic heuristic = new LinearConflict();
+public static Heuristic heuristic = new Inversions();
 
 static Puzzle startPuzzle;
 static Puzzle endPuzzle;
@@ -15,7 +15,6 @@ static Puzzle endPuzzle;
 public static int tablesPrinted = 0;
 
 public static void main(String[] args) {
-
         initStartAndEnd();
         AStar aStar = new AStar(startPuzzle, endPuzzle);
         Stack<Puzzle> path = aStar.solve();
@@ -32,9 +31,9 @@ public static void main(String[] args) {
 private static void initStartAndEnd() {
     endPuzzle = new Puzzle();
     startPuzzle = new Puzzle();
-    //startPuzzle.shuffle();
-    int i=0;
-    int j;
+    startPuzzle.shuffle();
+    /*int i = 0;
+    int j = 0;
     while (i<20){
         j=random.nextInt(4);
         if(startPuzzle.checkMove(j)){
