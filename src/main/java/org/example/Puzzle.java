@@ -5,25 +5,50 @@ import java.util.Stack;
 
 public class Puzzle {
 
-private int depth;
-
 private int emptyPos;
 public int[] fields;
 
-public int fValue;
-
 public boolean open,closed;
 
-public void setDepth(int i){
-    depth = i;
+public int F;
+public void setF(int i){
+    F = i;
 }
 
-public int getDepth(){
-    return depth;
+public int getF(){
+    return F;
 }
+
+private int G;
+
+public void setG(int i){
+    G = i;
+}
+
+public int getG(){
+    return G;
+}
+
+private int H;
+
+public void setH(int i){
+    H = i;
+}
+
+public int getH(){
+    return H;
+}
+
+public void reset(){
+    setF(0);
+    setH(0);
+    setG(0);
+}
+
+
 public void setParent(Puzzle parent) {
     this.parent = parent;
-    depth = parent.depth +1;
+    G = parent.G +1;
 }
 
 private Puzzle parent;
@@ -36,20 +61,20 @@ Puzzle(){
     }
     countEmptyPosition();
     countPuzzleValue();
-    this.depth = Integer.MAX_VALUE;
+    this.G = Integer.MAX_VALUE;
 }
 
 Puzzle(Puzzle parent){
     copy(parent);
     this.parent = parent;
-    this.depth = parent.depth +1;
+    this.G = parent.G +1;
 }
 
 void copy(Puzzle parent){
     emptyPos = parent.emptyPos;
     fields = new int[16];
     System.arraycopy(parent.fields, 0, fields, 0, 16);
-    fValue = parent.fValue;
+    F = parent.F;
     open = parent.open;
     closed = parent.closed;
 }
@@ -77,7 +102,7 @@ void randomize()
 public void shuffle(){
     randomize();
     countEmptyPosition();
-    countPuzzleValue();
+    //countPuzzleValue(); //?
 }
 
 private int countInversions(){
@@ -106,13 +131,13 @@ private void countEmptyPosition(){
 }
 
 public void countPuzzleValue() {
-    fValue = depth + Main.heuristic.getHeuristicValue(this,Main.endPuzzle);
+    F = G + Main.heuristic.getHeuristicValue(this,Main.endPuzzle);
 }
 
 boolean move(int direction){
     if( (emptyPos % 4 == 3 && direction == 0) || (emptyPos / 4 == 0 && direction == 1) ||
         (emptyPos % 4 == 0 && direction == 2) || (emptyPos / 4 == 3 && direction == 3) ){
-        fValue = Integer.MAX_VALUE;
+        F = Integer.MAX_VALUE;
         return false;
     }
     switch (direction) {
@@ -168,7 +193,7 @@ public void printPuzzle(boolean includeFullData){
         System.out.println("empty "+emptyPos);
         System.out.println("inversions "+countInversions());
         if(isSolvable())
-            System.out.println("fValue "+ fValue);
+            System.out.println("fValue "+ F);
         System.out.println("tables printed "+Main.tablesPrinted);
     }
     System.out.println("----------");

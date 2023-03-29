@@ -21,6 +21,8 @@ public static void main(String[] args) {
     for(int i=0;i<100;i++){
         count=0;
         initStartAndEnd();
+        startPuzzle.reset();
+        endPuzzle.reset();
         IDAStar idaStar = new IDAStar();
         heuristic = new Manhattan();
         Stack<Puzzle> road = idaStar.ida_star(startPuzzle);
@@ -32,6 +34,8 @@ public static void main(String[] args) {
         System.out.println("count: "+ count);
         count=0;
         heuristic = new Inversions();
+        startPuzzle.reset();
+        endPuzzle.reset();
         road = idaStar.ida_star(startPuzzle);
         while (!road.isEmpty()) {
             count++;
@@ -56,11 +60,11 @@ public static void main(String[] args) {
 private static void initStartAndEnd() {
     endPuzzle = new Puzzle();
     startPuzzle = new Puzzle();
-    startPuzzle.shuffle();
+    //startPuzzle.shuffle();
     int i = 0;
     int j = 0;
-    /*
-    while (i<160){
+
+    while (i<200){
         j=random.nextInt(4);
         if(startPuzzle.checkMove(j)){
             i++;

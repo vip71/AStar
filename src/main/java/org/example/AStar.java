@@ -43,12 +43,12 @@ public Stack<Puzzle> solve() {
                 opened.add(puzzle);
                 //closed.add(puzzle);
             }
-            else if(Main.getEqual(closed,puzzle).getDepth() > current.getDepth() + 1){
+            else if(Main.getEqual(closed,puzzle).getG() > current.getG() + 1){
                 Puzzle temp = Main.getEqual(closed,puzzle);
                 reopened++;
                 //System.out.println("parent change "+Main.getEqual(closed,puzzle).getDistance()+" "+(current.getDistance()+1));
                 temp.setParent(current);
-                temp.setDepth(current.getDepth() + 1);
+                temp.setG(current.getG() + 1);
                 temp.countPuzzleValue();
                 closed.remove(temp);
                 opened.remove(temp);
@@ -72,7 +72,7 @@ private static void printOpened(PriorityQueue<Puzzle> opened) {
 private static Puzzle getSmallestOpened(PriorityQueue<Puzzle> opened) {
     Puzzle smallest = null;
     for (Puzzle puzzle: opened) {
-        if( (smallest == null ? Integer.MAX_VALUE : smallest.fValue) > puzzle.fValue)
+        if( (smallest == null ? Integer.MAX_VALUE : smallest.F) > puzzle.F)
         {
             smallest = puzzle;
         }
@@ -86,7 +86,7 @@ private void printData(Set<Puzzle> closed,PriorityQueue<Puzzle> opened) {
     System.out.println("reopened: "+ reopened);
     System.out.println("closed: "+(closed.size()));
     System.out.println("opened: "+(opened.size()));
-    System.out.println("smallest f: "+getSmallestOpened(opened).fValue);
+    System.out.println("smallest f: "+getSmallestOpened(opened).F);
     if((Main.getEqual(closed,Main.endPuzzle)!=null)){
         System.out.println("final found");
     }
