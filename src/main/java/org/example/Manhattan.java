@@ -18,7 +18,7 @@ public static int manhattanForPuzzle(Puzzle init, Puzzle goal) {
         int b = findNumber(i, goal);
         diff+=manhattanDistance(a,b);//     /2
     }
-    return diff;
+    return diff/2;
 }
 
 public static int findNumber(int number,Puzzle puzzle){
