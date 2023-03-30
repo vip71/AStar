@@ -5,27 +5,24 @@ import static java.lang.Math.abs;
 public class Manhattan implements Heuristic{
 
 @Override
-public int getHeuristicValue(Puzzle init, Puzzle goal) {
-    return manhattanForPuzzle(init, goal);
+public int getHeuristicValue(Puzzle init) {
+    return manhattanForPuzzle(init);
 }
 
-public static int manhattanForPuzzle(Puzzle init, Puzzle goal) {
-    if(init == null || goal == null)
-        return Integer.MAX_VALUE;
+public static int manhattanForPuzzle(Puzzle init){
     int diff =0;
-    for(int i=1;i<16;i++){//0 nie 1
+    for(int i=1;i<16;i++){
         int a = findNumber(i, init);
-        int b = findNumber(i, goal);
-        diff+=manhattanDistance(a,b);//     /2
+        diff+=manhattanDistance(a,i-1);
     }
-    return diff/2;
+    return diff;
 }
 
 public static int findNumber(int number,Puzzle puzzle){
-    for(int i=1;i<16;i++){
+    for(int i=0;i<15;i++){
         if(puzzle.fields[i]==number) return i;
     }
-    return -1;
+    return 15;
 }
 
 public static int manhattanDistance(int a, int b){

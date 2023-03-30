@@ -11,8 +11,6 @@ public byte[] fields;
 
 public int manhattan;
 
-public boolean open,closed;
-
 public int F;
 public void setF(int i){
     F = i;
@@ -42,18 +40,18 @@ public int getH(){
     return H;
 }
 
-public void reset(){
-    setF(0);
-    setH(0);
-    setG(0);
+public void reset(boolean isStart){
+    if(isStart){
+        setG(0);
+        setH(Main.heuristic.getHeuristicValue(this));
+        setF(G+H);
+    }
+    else {
+        setG(Integer.MAX_VALUE);
+        setH(Main.heuristic.getHeuristicValue(this));
+        setF(G+H);
+    }
 }
-
-public void setParent(Puzzle parent) {
-    this.parent = parent;
-    G = parent.G +1;
-}
-
-private Puzzle parent;
 
 Puzzle(){
     fields = new byte[16];
@@ -62,7 +60,6 @@ Puzzle(){
         fields[i] = (byte) ((i+1)%16);
     }
     countEmptyPosition();
-    countPuzzleValue();
     this.G = Integer.MAX_VALUE;
     emptyRow=3;
     emptyCol=3;
@@ -71,7 +68,6 @@ Puzzle(){
 
 Puzzle(Puzzle parent){
     copy(parent);
-    this.parent = parent;
     this.G = parent.G +1;
 }
 
@@ -82,8 +78,8 @@ Puzzle(int[] numbers){
         fields[i] = (byte) numbers[i];
     }
     countEmptyPosition();
-    countPuzzleValue();
     this.G = Integer.MAX_VALUE;
+    manhattan=Manhattan.manhattanForPuzzle(this);
 }
 
 void copy(Puzzle parent){
@@ -97,11 +93,6 @@ void copy(Puzzle parent){
     H = parent.H;
     manhattan=parent.manhattan;
 }
-
-boolean equals(Puzzle compared){
-    return Arrays.equals(fields,compared.fields);
-}
-
 void randomize()
 {
     for (int i = 15; i > 0; i--)
@@ -118,7 +109,7 @@ public void shuffle(){
     randomize();
     countEmptyPosition();
     Manhattan manhattan= new Manhattan();
-    this.manhattan=manhattan.getHeuristicValue(this,Main.endPuzzle);
+    this.manhattan=manhattan.getHeuristicValue(this);
     //countPuzzleValue(); //?
 }
 
@@ -149,45 +140,44 @@ private void countEmptyPosition(){
     emptyPos = -1;
 }
 
-public void countPuzzleValue() {
-    F = G + Main.heuristic.getHeuristicValue(this,Main.endPuzzle);
-}
-
-boolean move(int direction){
-    if( !checkMove(direction)){
-        F = Integer.MAX_VALUE;
-        return false;
-    }
+void move(int direction){
     switch (direction) {
-        case 0:
+        case 0 -> {
+            manhattan-=Manhattan.manhattanDistance(Manhattan.findNumber(fields[emptyPos+1],this),fields[emptyPos+1]-1);
             fields[emptyPos] = fields[emptyPos + 1];
             fields[emptyPos + 1] = 0;
+            manhattan+=Manhattan.manhattanDistance(Manhattan.findNumber(fields[emptyPos],this),fields[emptyPos]-1);
             emptyPos++;
             emptyCol++;
-            break;
-        case 1:
+        }
+        case 1 -> {
+            manhattan-=Manhattan.manhattanDistance(Manhattan.findNumber(fields[emptyPos-4],this),fields[emptyPos-4]-1);
             fields[emptyPos] = fields[emptyPos - 4];
             fields[emptyPos - 4] = 0;
-            emptyPos-=4;
+            manhattan+=Manhattan.manhattanDistance(Manhattan.findNumber(fields[emptyPos],this),fields[emptyPos]-1);
+            emptyPos -= 4;
             emptyRow--;
-            break;
-        case 2:
+        }
+        case 2 -> {
+            manhattan-=Manhattan.manhattanDistance(Manhattan.findNumber(fields[emptyPos-1],this),fields[emptyPos-1]-1);
             fields[emptyPos] = fields[emptyPos - 1];
             fields[emptyPos - 1] = 0;
+            manhattan+=Manhattan.manhattanDistance(Manhattan.findNumber(fields[emptyPos],this),fields[emptyPos]-1);
             emptyPos--;
             emptyCol--;
-            break;
-        case 3:
+        }
+        case 3 -> {
+            manhattan-=Manhattan.manhattanDistance(Manhattan.findNumber(fields[emptyPos+4],this),fields[emptyPos+4]-1);
             fields[emptyPos] = fields[emptyPos + 4];
             fields[emptyPos + 4] = 0;
-            emptyPos+=4;
+            manhattan+=Manhattan.manhattanDistance(Manhattan.findNumber(fields[emptyPos],this),fields[emptyPos]-1);
+            emptyPos += 4;
             emptyRow++;
-            break;
+        }
     }
-    setH(Main.heuristic.getHeuristicValue(this,Main.endPuzzle));
-    //countEmptyPosition();
-    //countPuzzleValue();
-    return true;
+    setH(manhattan);
+    //setH(Main.heuristic.getHeuristicValue(this));
+    //System.out.println(manhattan+" "+getH());
 }
 public ArrayList<Puzzle> getNeighbors(){
     ArrayList<Puzzle> neighbors = new ArrayList<Puzzle>();
@@ -222,27 +212,9 @@ public void printPuzzle(boolean includeFullData){
     System.out.println("----------");
 }
 
-int getHeuristicValue(){
-    return H;
-}
-
 boolean checkMove(int direction){
     return !((emptyCol == 3 && direction == 0) || (emptyRow == 0 && direction == 1) ||
         (emptyCol == 0 && direction == 2) || (emptyRow== 3 && direction == 3));
-}
-
-public Stack<Puzzle> getPath() {
-    Puzzle current = this;
-    Stack<Puzzle> path = new Stack<Puzzle>();
-    while (current != null) {
-        path.push(current);
-        current = current.getParent();
-    }
-    return path;
-}
-
-public Puzzle getParent() {
-    return parent;
 }
 
 }

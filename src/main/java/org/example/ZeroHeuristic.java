@@ -2,7 +2,7 @@ package org.example;
 
 public class ZeroHeuristic implements Heuristic{
 @Override
-public int getHeuristicValue(Puzzle init, Puzzle goal) {
+public int getHeuristicValue(Puzzle init) {
     return 0;
 }
 }

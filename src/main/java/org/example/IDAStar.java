@@ -6,83 +6,65 @@ import java.util.List;
 import java.util.Stack;
 
 public class IDAStar {
-    static final int FOUND =0;
-    static final int DISTANCE_TO_PARENT=1;
+static final int FOUND = -1;
+static final int DISTANCE_TO_PARENT = 1;
 
-    public Stack<Puzzle> ida_star(Puzzle root){
-        Main.polled=0;
-        int bound = Main.heuristic.getHeuristicValue(root,Main.endPuzzle);
-        Stack<Puzzle> path = new Stack<>();
-        HashSet<byte[]> pathHash = new HashSet<>();
-        path.push(root);
-        pathHash.add(root.fields);
-        int t;
-        while (true){
-            t = search_ida_star(path,pathHash,0,bound);
-            if(t==FOUND){
-                //System.out.println("ending ida");
-                System.out.println("polled: "+Main.polled);
-             return path;
-            }
-            if(t==Integer.MAX_VALUE){
-                System.out.println("error");
-                return null;
-            }
-            bound = t;
+public Stack<Puzzle> ida_star(Puzzle root) {
+    Main.polled = 0;
+    int bound = Main.heuristic.getHeuristicValue(root);
+    Stack<Puzzle> path = new Stack<>();
+    HashSet<byte[]> pathHash = new HashSet<>();
+    path.push(root);
+    pathHash.add(root.fields);
+    int t;
+    while (true) {
+        t = search_ida_star(path, pathHash, 0, bound);
+        if (t == FOUND) {
+            System.out.println("polled: " + Main.polled);
+            return path;
         }
-    }
-
-    int search_ida_star(Stack<Puzzle> path,HashSet<byte[]> pathHash, int graphCost, int currentFBound){
-        Puzzle current = path.lastElement();
-        current.setG(graphCost);
-        current.setF(graphCost + current.getH());
-        Main.polled++;
-        //debug(graphCost);
-        if (current.getF() > currentFBound){
-            //System.out.println("ret f: "+f);
-            return current.getF();
+        if (t == Integer.MAX_VALUE) {
+            System.out.println("error");
+            return null;
         }
-        if (current.equals(Main.endPuzzle)){
-            //System.out.println("endPuzzle");
-            return FOUND;
-        }
-        int minFFound = Integer.MAX_VALUE;
-        List<Puzzle> nextPuzzles = current.getNeighbors();
-        for (Puzzle child : nextPuzzles) {
-            if(!pathHash.contains(child.fields)){
-            //if(getEqual(path,child)==null){
-                path.add(child);
-                pathHash.add(child.fields);
-                int minFOverBound=search_ida_star(path,pathHash,current.getG()+DISTANCE_TO_PARENT,currentFBound);
-                if (minFOverBound==FOUND){
-                    //System.out.println("FOUND");
-                    return FOUND;
-                }
-                if(minFOverBound<minFFound)
-                    minFFound=minFOverBound;
-                pathHash.remove(path.peek().fields);
-                path.pop();
-            }
-        }
-        //System.out.println("min: "+min);
-      return minFFound;
-    }
-
-private static void debug(int graphCost) {
-    if(Main.polled %10000000==0)
-    {
-        System.out.println("polled: "+Main.polled);
-        System.out.println("graphCost: "+ graphCost);
-        //current.printPuzzle(false);
+        bound = t;
     }
 }
 
-public static Puzzle getEqual(Stack<Puzzle> puzzles, Puzzle specificPuzzle){
-        for (Puzzle puzzle: puzzles) {
-            if(Arrays.equals(specificPuzzle.fields,puzzle.fields)){
-                return puzzle;
-            }
-        }
-        return null;
+int search_ida_star(Stack<Puzzle> path, HashSet<byte[]> pathHash, int graphCost, int currentFBound) {
+    Puzzle current = path.lastElement();
+    current.setG(graphCost);
+    current.setF(graphCost + current.getH());
+    Main.polled++;
+    //debug(graphCost);
+    if (current.getF() > currentFBound) {
+        return current.getF();
     }
+    if(Arrays.equals(Main.endPuzzle.fields, current.fields)){
+        return FOUND;
+    }
+    int minFFound = Integer.MAX_VALUE;
+    List<Puzzle> nextPuzzles = current.getNeighbors();
+    for (Puzzle child : nextPuzzles) {
+        if (!pathHash.contains(child.fields)) {
+            path.add(child);
+            pathHash.add(child.fields);
+            int minFOverBound = search_ida_star(path, pathHash, current.getG() + DISTANCE_TO_PARENT, currentFBound);
+            if (minFOverBound == FOUND) {
+                return FOUND;
+            }
+            if (minFOverBound < minFFound)
+                minFFound = minFOverBound;
+            pathHash.remove(path.pop().fields);
+        }
+    }
+    return minFFound;
+}
+
+private static void debug(int graphCost) {
+    if (Main.polled % 10000000 == 0) {
+        System.out.println("polled: " + Main.polled +" graphCost: " + graphCost);
+        //current.printPuzzle(false);
+    }
+}
 }

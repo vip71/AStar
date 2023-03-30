@@ -18,90 +18,63 @@ public static long polled =0;
 public static int count=0;
 
 public static void main(String[] args) {
-    for(int i=0;i<1;i++){
+    for(int i=0;i<100;i++){
         count=0;
-        initStartAndEnd();
-        startPuzzle.reset();
-        endPuzzle.reset();
+        //int[] start = {4,6,3,0,1,2,7,12,8,5,9,14,10,11,13,15};
+        //initStartAndEnd(start);
+        initStartAndEnd(null);
+        //initStartAndEnd(20);
         IDAStar idaStar = new IDAStar();
-        heuristic = new Manhattan();
-        Stack<Puzzle> road = idaStar.ida_star(startPuzzle);
-        while (!road.isEmpty()) {
-            count++;
-            Puzzle element = road.pop();
-            element.printPuzzle(false);
-        }
 
-        System.out.println("count: "+ count);
-        count=0;
-
-        heuristic = new Inversions();
-        startPuzzle.reset();
-        endPuzzle.reset();
-        road = idaStar.ida_star(startPuzzle);
-        while (!road.isEmpty()) {
-            count++;
-            Puzzle element = road.pop();
-            element.printPuzzle(false);
-        }
-        System.out.println("count: "+ count);
+        test(idaStar,new Manhattan());
+        //test(idaStar,new ZeroHeuristic());
     }
-        /*
-        AStar aStar = new AStar(startPuzzle, endPuzzle);
-        Stack<Puzzle> path = aStar.solve();
-        int pathElements = 0;
-        while (!path.isEmpty()) {
-            Puzzle element = path.pop();
-            pathElements++;
-            element.printPuzzle(false);
-        }
-        System.out.println("polled: " + aStar.polled);
-        System.out.println("path: " + pathElements);*/
 }
 
-private static void initStartAndEnd() {
+private static void test(IDAStar idaStar,Heuristic newHeuristic) {
+    heuristic = newHeuristic;
+    startPuzzle.reset(true);
+    endPuzzle.reset(false);
+    Stack<Puzzle> road = idaStar.ida_star(startPuzzle);
+    while (!road.isEmpty()) {
+        count++;
+        Puzzle element = road.pop();
+        //element.printPuzzle(false);
+    }
+
+    System.out.println("estimated: "+ startPuzzle.getH());
+    System.out.println("count: "+ count+"\n");
+    count=0;
+}
+
+private static void initStartAndEnd(int[] start) {
+    if(start==null){
+        startPuzzle = new Puzzle();
+        startPuzzle.shuffle();
+    } else {
+        startPuzzle = new Puzzle(start);
+    }
     endPuzzle = new Puzzle();
-    int[] start = {4,6,3,0,1,2,7,12,8,5,9,14,10,11,13,15};
-    startPuzzle = new Puzzle(start);
-    //startPuzzle = new Puzzle();
-    startPuzzle.shuffle();
-    int i = 0;
-    int j = 0;
-/*
-    while (i<80){
+    System.out.println("First puzzle");
+    startPuzzle.printPuzzle(false);
+}
+
+private static void initStartAndEnd(int shuffles) {
+    startPuzzle= new Puzzle();
+    endPuzzle = new Puzzle();
+    int j,i = 0;
+    while (i<shuffles){
         j=random.nextInt(4);
         if(startPuzzle.checkMove(j)){
             i++;
             startPuzzle.move(j);
         }
     }
-    /*startPuzzle.move(2);
-    startPuzzle.move(2);
-    startPuzzle.move(1);
-    startPuzzle.move(1);
-    startPuzzle.move(0);
-    startPuzzle.move(1);
-    startPuzzle.move(2);
-    startPuzzle.move(3);
-    startPuzzle.move(2);
-    startPuzzle.move(1);
-    startPuzzle.move(0);
-    startPuzzle.move(3);
-    startPuzzle.setDepth(0);*/
     while(!startPuzzle.isSolvable()){
         startPuzzle.shuffle();
     }
-    //System.out.println("First puzzle");
-    //startPuzzle.printPuzzle(false);
-}
-
-public static Puzzle getEqual(Set<Puzzle> puzzles, Puzzle specificPuzzle){
-    for (Puzzle puzzle: puzzles) {
-        if(puzzle.equals(specificPuzzle)){
-            return puzzle;
-        }
-    }
-    return null;
+    System.out.println("First puzzle");
+    startPuzzle.printPuzzle(false);
 }
 
 }
