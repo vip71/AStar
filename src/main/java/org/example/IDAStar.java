@@ -1,5 +1,7 @@
 package org.example;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Stack;
 
@@ -11,10 +13,12 @@ public class IDAStar {
         Main.polled=0;
         int bound = Main.heuristic.getHeuristicValue(root,Main.endPuzzle);
         Stack<Puzzle> path = new Stack<>();
+        HashSet<byte[]> pathHash = new HashSet<>();
         path.push(root);
+        pathHash.add(root.fields);
         int t;
         while (true){
-            t = search_ida_star(path,0,bound);
+            t = search_ida_star(path,pathHash,0,bound);
             if(t==FOUND){
                 //System.out.println("ending ida");
                 System.out.println("polled: "+Main.polled);
@@ -28,12 +32,12 @@ public class IDAStar {
         }
     }
 
-    int search_ida_star(Stack<Puzzle> path, int graphCost, int currentFBound){
+    int search_ida_star(Stack<Puzzle> path,HashSet<byte[]> pathHash, int graphCost, int currentFBound){
         Puzzle current = path.lastElement();
-        debug(graphCost);
-        current.setH(Main.heuristic.getHeuristicValue(current,Main.endPuzzle));
         current.setG(graphCost);
         current.setF(graphCost + current.getH());
+        Main.polled++;
+        //debug(graphCost);
         if (current.getF() > currentFBound){
             //System.out.println("ret f: "+f);
             return current.getF();
@@ -45,15 +49,18 @@ public class IDAStar {
         int minFFound = Integer.MAX_VALUE;
         List<Puzzle> nextPuzzles = current.getNeighbors();
         for (Puzzle child : nextPuzzles) {
-            if(getEqual(path,child)==null){
+            if(!pathHash.contains(child.fields)){
+            //if(getEqual(path,child)==null){
                 path.add(child);
-                int minFOverBound=search_ida_star(path,current.getG()+DISTANCE_TO_PARENT,currentFBound);
+                pathHash.add(child.fields);
+                int minFOverBound=search_ida_star(path,pathHash,current.getG()+DISTANCE_TO_PARENT,currentFBound);
                 if (minFOverBound==FOUND){
                     //System.out.println("FOUND");
                     return FOUND;
                 }
                 if(minFOverBound<minFFound)
                     minFFound=minFOverBound;
+                pathHash.remove(path.peek().fields);
                 path.pop();
             }
         }
@@ -62,8 +69,7 @@ public class IDAStar {
     }
 
 private static void debug(int graphCost) {
-    Main.polled++;
-    if(Main.polled %100000000==0)
+    if(Main.polled %10000000==0)
     {
         System.out.println("polled: "+Main.polled);
         System.out.println("graphCost: "+ graphCost);
@@ -73,7 +79,7 @@ private static void debug(int graphCost) {
 
 public static Puzzle getEqual(Stack<Puzzle> puzzles, Puzzle specificPuzzle){
         for (Puzzle puzzle: puzzles) {
-            if(puzzle.equals(specificPuzzle)){
+            if(Arrays.equals(specificPuzzle.fields,puzzle.fields)){
                 return puzzle;
             }
         }

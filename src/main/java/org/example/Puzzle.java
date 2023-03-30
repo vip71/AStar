@@ -1,12 +1,15 @@
 package org.example;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Stack;
-
 public class Puzzle {
+private byte emptyPos;
+private byte emptyRow;
+private byte emptyCol;
+public byte[] fields;
 
-private int emptyPos;
-public int[] fields;
+public int manhattan;
 
 public boolean open,closed;
 
@@ -45,7 +48,6 @@ public void reset(){
     setG(0);
 }
 
-
 public void setParent(Puzzle parent) {
     this.parent = parent;
     G = parent.G +1;
@@ -54,14 +56,17 @@ public void setParent(Puzzle parent) {
 private Puzzle parent;
 
 Puzzle(){
-    fields = new int[16];
+    fields = new byte[16];
     for(int i = 0; i < 16 ; i++)
     {
-        fields[i] = (i+1)%16;
+        fields[i] = (byte) ((i+1)%16);
     }
     countEmptyPosition();
     countPuzzleValue();
     this.G = Integer.MAX_VALUE;
+    emptyRow=3;
+    emptyCol=3;
+    manhattan=0;
 }
 
 Puzzle(Puzzle parent){
@@ -70,21 +75,31 @@ Puzzle(Puzzle parent){
     this.G = parent.G +1;
 }
 
+Puzzle(int[] numbers){
+    fields = new byte[16];
+    for(int i = 0; i < 16 ; i++)
+    {
+        fields[i] = (byte) numbers[i];
+    }
+    countEmptyPosition();
+    countPuzzleValue();
+    this.G = Integer.MAX_VALUE;
+}
+
 void copy(Puzzle parent){
     emptyPos = parent.emptyPos;
-    fields = new int[16];
+    emptyCol = parent.emptyCol;
+    emptyRow = parent.emptyRow;
+    fields = new byte[16];
     System.arraycopy(parent.fields, 0, fields, 0, 16);
     F = parent.F;
-    open = parent.open;
-    closed = parent.closed;
+    G = parent.G;
+    H = parent.H;
+    manhattan=parent.manhattan;
 }
 
 boolean equals(Puzzle compared){
-    for(int i=0;i<16;i++){
-        if(fields[i] != compared.fields[i])
-            return false;
-    }
-    return true;
+    return Arrays.equals(fields,compared.fields);
 }
 
 void randomize()
@@ -92,7 +107,7 @@ void randomize()
     for (int i = 15; i > 0; i--)
     {
         int j = Main.random.nextInt(i+1);
-        int temp = fields[i];
+        byte temp = fields[i];
         fields[i] = fields[j];
         fields[j] = temp;
     }
@@ -102,6 +117,8 @@ void randomize()
 public void shuffle(){
     randomize();
     countEmptyPosition();
+    Manhattan manhattan= new Manhattan();
+    this.manhattan=manhattan.getHeuristicValue(this,Main.endPuzzle);
     //countPuzzleValue(); //?
 }
 
@@ -123,7 +140,9 @@ private void countEmptyPosition(){
     for(int i = 0; i < 16 ; i++)
     {
         if(fields[i]==0){
-            emptyPos = i;
+            emptyPos = (byte) i;
+            emptyRow = (byte) (emptyPos/4);
+            emptyCol = (byte) (emptyPos%4);
             return;
         }
     }
@@ -135,8 +154,7 @@ public void countPuzzleValue() {
 }
 
 boolean move(int direction){
-    if( (emptyPos % 4 == 3 && direction == 0) || (emptyPos / 4 == 0 && direction == 1) ||
-        (emptyPos % 4 == 0 && direction == 2) || (emptyPos / 4 == 3 && direction == 3) ){
+    if( !checkMove(direction)){
         F = Integer.MAX_VALUE;
         return false;
     }
@@ -145,25 +163,30 @@ boolean move(int direction){
             fields[emptyPos] = fields[emptyPos + 1];
             fields[emptyPos + 1] = 0;
             emptyPos++;
+            emptyCol++;
             break;
         case 1:
             fields[emptyPos] = fields[emptyPos - 4];
             fields[emptyPos - 4] = 0;
             emptyPos-=4;
+            emptyRow--;
             break;
         case 2:
             fields[emptyPos] = fields[emptyPos - 1];
             fields[emptyPos - 1] = 0;
             emptyPos--;
+            emptyCol--;
             break;
         case 3:
             fields[emptyPos] = fields[emptyPos + 4];
             fields[emptyPos + 4] = 0;
             emptyPos+=4;
+            emptyRow++;
             break;
     }
-    countEmptyPosition();
-    countPuzzleValue();
+    setH(Main.heuristic.getHeuristicValue(this,Main.endPuzzle));
+    //countEmptyPosition();
+    //countPuzzleValue();
     return true;
 }
 public ArrayList<Puzzle> getNeighbors(){
@@ -200,12 +223,12 @@ public void printPuzzle(boolean includeFullData){
 }
 
 int getHeuristicValue(){
-    return Main.heuristic.getHeuristicValue(this,Main.endPuzzle);
+    return H;
 }
 
 boolean checkMove(int direction){
-    return !((emptyPos % 4 == 3 && direction == 0) || (emptyPos / 4 == 0 && direction == 1) ||
-        (emptyPos % 4 == 0 && direction == 2) || (emptyPos / 4 == 3 && direction == 3));
+    return !((emptyCol == 3 && direction == 0) || (emptyRow == 0 && direction == 1) ||
+        (emptyCol == 0 && direction == 2) || (emptyRow== 3 && direction == 3));
 }
 
 public Stack<Puzzle> getPath() {

@@ -6,8 +6,8 @@ public int getHeuristicValue(Puzzle init, Puzzle goal) {
     return countInversions(init.fields)+countVerticalInversions(init.fields);
 }
 
-private int countVerticalInversions(int table[]) {
-    int tableRearranged[]=new int[16];
+private int countVerticalInversions(byte table[]) {
+    byte tableRearranged[]=new byte[16];
     for(int i=0;i<4;i++){
         for(int j=0;j<4;j++){
             tableRearranged[i*4+j]=table[j*4+i];
@@ -16,7 +16,7 @@ private int countVerticalInversions(int table[]) {
     return countInversions(tableRearranged);
 }
 
-private int countInversions(int array[]){
+private int countInversions(byte array[]){
     int inversions = 0;
     for(int i=0;i<16;i++){
         for(int j=0;j<i;j++){

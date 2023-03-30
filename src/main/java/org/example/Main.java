@@ -18,7 +18,7 @@ public static long polled =0;
 public static int count=0;
 
 public static void main(String[] args) {
-    for(int i=0;i<100;i++){
+    for(int i=0;i<1;i++){
         count=0;
         initStartAndEnd();
         startPuzzle.reset();
@@ -29,10 +29,12 @@ public static void main(String[] args) {
         while (!road.isEmpty()) {
             count++;
             Puzzle element = road.pop();
-            //element.printPuzzle(false);
+            element.printPuzzle(false);
         }
+
         System.out.println("count: "+ count);
         count=0;
+
         heuristic = new Inversions();
         startPuzzle.reset();
         endPuzzle.reset();
@@ -40,7 +42,7 @@ public static void main(String[] args) {
         while (!road.isEmpty()) {
             count++;
             Puzzle element = road.pop();
-            //element.printPuzzle(false);
+            element.printPuzzle(false);
         }
         System.out.println("count: "+ count);
     }
@@ -59,12 +61,14 @@ public static void main(String[] args) {
 
 private static void initStartAndEnd() {
     endPuzzle = new Puzzle();
-    startPuzzle = new Puzzle();
-    //startPuzzle.shuffle();
+    int[] start = {4,6,3,0,1,2,7,12,8,5,9,14,10,11,13,15};
+    startPuzzle = new Puzzle(start);
+    //startPuzzle = new Puzzle();
+    startPuzzle.shuffle();
     int i = 0;
     int j = 0;
-
-    while (i<200){
+/*
+    while (i<80){
         j=random.nextInt(4);
         if(startPuzzle.checkMove(j)){
             i++;
