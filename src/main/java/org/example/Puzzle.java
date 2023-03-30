@@ -1,8 +1,6 @@
 package org.example;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Stack;
 public class Puzzle {
 private byte emptyPos;
 private byte emptyRow;
@@ -10,6 +8,7 @@ private byte emptyCol;
 public byte[] fields;
 
 public int manhattan;
+public int linearConflict;
 
 public int F;
 public void setF(int i){
@@ -43,14 +42,12 @@ public int getH(){
 public void reset(boolean isStart){
     if(isStart){
         setG(0);
-        setH(Main.heuristic.getHeuristicValue(this));
-        setF(G+H);
     }
     else {
         setG(Integer.MAX_VALUE);
-        setH(Main.heuristic.getHeuristicValue(this));
-        setF(G+H);
     }
+    setH(Main.heuristic.getHeuristicValue(this));
+    setF(G+H);
 }
 
 Puzzle(){
@@ -175,12 +172,12 @@ void move(int direction){
             emptyRow++;
         }
     }
-    setH(manhattan);
+    setH(manhattan+LinearConflict.linearConflictValue(this));
     //setH(Main.heuristic.getHeuristicValue(this));
     //System.out.println(manhattan+" "+getH());
 }
 public ArrayList<Puzzle> getNeighbors(){
-    ArrayList<Puzzle> neighbors = new ArrayList<Puzzle>();
+    ArrayList<Puzzle> neighbors = new ArrayList<>();
     Puzzle puzzle;
     for(int i=0;i<4;i++){
         if(checkMove(i))

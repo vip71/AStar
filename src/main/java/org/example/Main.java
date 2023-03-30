@@ -1,7 +1,6 @@
 package org.example;
 
 import java.util.Random;
-import java.util.Set;
 import java.util.Stack;
 
 public class Main {
@@ -23,10 +22,10 @@ public static void main(String[] args) {
         //int[] start = {4,6,3,0,1,2,7,12,8,5,9,14,10,11,13,15};
         //initStartAndEnd(start);
         initStartAndEnd(null);
-        //initStartAndEnd(20);
+        //initStartAndEnd(80);
         IDAStar idaStar = new IDAStar();
 
-        test(idaStar,new Manhattan());
+        test(idaStar,new LinearConflict());
         //test(idaStar,new ZeroHeuristic());
     }
 }
@@ -73,8 +72,8 @@ private static void initStartAndEnd(int shuffles) {
     while(!startPuzzle.isSolvable()){
         startPuzzle.shuffle();
     }
-    System.out.println("First puzzle");
-    startPuzzle.printPuzzle(false);
+    //System.out.println("First puzzle");
+    //startPuzzle.printPuzzle(false);
 }
 
 }

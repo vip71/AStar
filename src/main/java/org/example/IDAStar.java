@@ -36,7 +36,7 @@ int search_ida_star(Stack<Puzzle> path, HashSet<byte[]> pathHash, int graphCost,
     current.setG(graphCost);
     current.setF(graphCost + current.getH());
     Main.polled++;
-    //debug(graphCost);
+    debug(graphCost);
     if (current.getF() > currentFBound) {
         return current.getF();
     }
